@@ -3,7 +3,7 @@
 ;; Copyright (C) 2013 Yasuyuki Oka <yasuyk@gmail.com>
 
 ;; Author: Yasuyuki Oka <yasuyk@gmail.com>
-;; Version: DEV
+;; Version: 0.1
 ;; URL: https://github.com/yasuyk/helm-company
 ;; Package-Requires: ((helm "1.0") (company "0.6.12"))
 
@@ -33,6 +33,8 @@
 
 (require 'helm)
 (require 'helm-match-plugin)
+(require 'helm-files)
+(require 'helm-elisp) ;; For with-helm-show-completion
 (require 'company)
 
 (defgroup helm-company nil
@@ -57,10 +59,8 @@ Set it to nil if you don't want this limit."
   "Insert CANDIDATE."
   (delete-char (- (length (helm-attr 'company-prefix))))
   (insert candidate)
-  (prog1 (let ((action (get-text-property 0 'action candidate)))
-           (if action (funcall action)))
-    ;; for GC
-    (helm-attrset 'company-candidates nil)))
+  ;; for GC
+  (helm-attrset 'company-candidates nil))
 
 (defvar helm-source-company-candidates
   '((name . "Company")
