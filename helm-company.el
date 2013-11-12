@@ -50,7 +50,7 @@ Set it to nil if you don't want this limit."
   :type '(choice (const :tag "Disabled" nil) integer))
 
 (defun helm-company-init ()
-  "Prepare helm for mode command `company-mode'."
+  "Prepare helm for company."
   (helm-attrset 'company-candidates company-candidates)
   (helm-attrset 'company-prefix company-prefix)
   (company-abort))
