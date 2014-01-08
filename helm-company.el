@@ -53,6 +53,8 @@ Set it to nil if you don't want this limit."
   "Prepare helm for company."
   (helm-attrset 'company-candidates company-candidates)
   (helm-attrset 'company-prefix company-prefix)
+  (when (<= (length company-candidates) 1)
+    (helm-exit-minibuffer))
   (company-abort))
 
 (defun helm-company-action (candidate)
