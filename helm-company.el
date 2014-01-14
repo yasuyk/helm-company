@@ -80,11 +80,12 @@ It is useful to narrow candidates."
   (interactive)
   (unless company-candidates
     (company-complete))
-  (let ((begin (- company-point (length company-prefix))))
-    (with-helm-show-completion begin company--point-max
-     (helm :sources 'helm-source-company-candidates
-           :buffer  "*helm company*"
-           :candidate-number-limit helm-company-candidate-number-limit))))
+  (when company-point
+    (let ((begin (- company-point (length company-prefix))))
+      (with-helm-show-completion begin company--point-max
+        (helm :sources 'helm-source-company-candidates
+              :buffer  "*helm company*"
+              :candidate-number-limit helm-company-candidate-number-limit)))))
 
 (provide 'helm-company)
 
