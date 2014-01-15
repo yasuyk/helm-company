@@ -1,4 +1,4 @@
-helm-company.el
+helm-company.el [![Build Status](https://travis-ci.org/yasuyk/helm-company.png)](https://travis-ci.org/yasuyk/helm-company)
 ============
 
 [Helm] interface for [company-mode]
