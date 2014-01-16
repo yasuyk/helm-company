@@ -132,7 +132,7 @@ Set it to nil if you don't want this limit."
     (delq nil keymap))
   "Keymap used in Company sources.")
 
-(defvar helm-source-company-candidates
+(defvar helm-source-company
   `((name . "Company")
     (init . helm-company-init)
     (candidates . (lambda () (helm-attr 'company-candidates)))
@@ -152,7 +152,7 @@ It is useful to narrow candidates."
   (when company-point
     (let ((begin (- company-point (length company-prefix))))
       (with-helm-show-completion begin company--point-max
-        (helm :sources 'helm-source-company-candidates
+        (helm :sources 'helm-source-company
               :buffer  "*helm company*"
               :candidate-number-limit helm-company-candidate-number-limit)))))
 
