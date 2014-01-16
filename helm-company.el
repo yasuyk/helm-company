@@ -137,7 +137,7 @@ Set it to nil if you don't want this limit."
     (init . helm-company-init)
     (candidates . (lambda () (helm-attr 'company-candidates)))
     (action . helm-company-action)
-    (persistent-action . helm-company-show-location)
+    (persistent-action . helm-company-show-doc-buffer)
     (persistent-help . "Show document (If available)")
     (keymap . ,helm-company-map)
     (company-candidates)))
