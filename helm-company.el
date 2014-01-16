@@ -63,12 +63,18 @@ Set it to nil if you don't want this limit."
     (setq helm-company-backend company-backend))
   (company-abort))
 
-(defun helm-company-action (candidate)
+(defun helm-company-action-insert (candidate)
   "Insert CANDIDATE."
   (delete-char (- (length (helm-attr 'company-prefix))))
   (insert candidate)
   ;; for GC
-  (helm-attrset 'company-candidates nil))
+  (helm-attrset 'company-candidatecompany--auto-completion
+(defun helm-company-action-show-document (candidate)
+  "Show the documentation of the CANDIDATE."
+  (interactive)
+  (let ((buffer (funcall helm-company-backend 'doc-buffer candidate)))
+    (when buffer
+      (display-buffer buffer))))
 
 (defun helm-company-show-doc-buffer (candidate)
   "Temporarily show the documentation buffer for the CANDIDATE."
@@ -82,8 +88,8 @@ Set it to nil if you don't want this limit."
         (setq helm-company-help-window
               (helm-company-display-document-buffer buffer))))))
 
-(defun helm-company-show-location (candidate)
-  "Temporarily display a buffer showing the CANDIDATE."
+(defun helm-company-find-location (candidate)
+  "Find location of CANDIDATE."
   (interactive)
     (let* ((location (save-excursion (funcall helm-company-backend 'location candidate)))
            (pos (or (cdr location) (error "No location available")))
@@ -132,11 +138,17 @@ Set it to nil if you don't want this limit."
     (delq nil keymap))
   "Keymap used in Company sources.")
 
+(defvar helm-company-actions
+  '(("Insert" . helm-company-action-insert)
+    ("Show douctment (If available)" . helm-company-action-show-document)
+    ("Find location (If available)" . helm-company-find-location))
+  "Actions for `helm-company'.")
+
 (defvar helm-source-company
   `((name . "Company")
     (init . helm-company-init)
     (candidates . (lambda () (helm-attr 'company-candidates)))
-    (action . helm-company-action)
+    (action . ,helm-company-actions)
     (persistent-action . helm-company-show-doc-buffer)
     (persistent-help . "Show document (If available)")
     (keymap . ,helm-company-map)
