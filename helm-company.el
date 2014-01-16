@@ -3,7 +3,7 @@
 ;; Copyright (C) 2013 Yasuyuki Oka <yasuyk@gmail.com>
 
 ;; Author: Yasuyuki Oka <yasuyk@gmail.com>
-;; Version: 0.1
+;; Version: 0.1.1
 ;; URL: https://github.com/yasuyk/helm-company
 ;; Package-Requires: ((helm "1.5.9") (company "0.6.13"))
 
