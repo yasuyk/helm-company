@@ -68,7 +68,8 @@ Set it to nil if you don't want this limit."
   (delete-char (- (length (helm-attr 'company-prefix))))
   (insert candidate)
   ;; for GC
-  (helm-attrset 'company-candidatecompany--auto-completion
+  (helm-attrset 'company-candidates nil))
+                
 (defun helm-company-action-show-document (candidate)
   "Show the documentation of the CANDIDATE."
   (interactive)
