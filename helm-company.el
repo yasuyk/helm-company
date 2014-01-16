@@ -50,12 +50,17 @@ Set it to nil if you don't want this limit."
   :group 'helm-company
   :type '(choice (const :tag "Disabled" nil) integer))
 
+(defvar helm-company-help-window nil)
+(defvar helm-company-backend nil)
+
 (defun helm-company-init ()
   "Prepare helm for company."
   (helm-attrset 'company-candidates company-candidates)
   (helm-attrset 'company-prefix company-prefix)
-  (when (<= (length company-candidates) 1)
-    (helm-exit-minibuffer))
+  (setq helm-company-help-window nil)
+  (if (<= (length company-candidates) 1)
+      (helm-exit-minibuffer)
+    (setq helm-company-backend company-backend))
   (company-abort))
 
 (defun helm-company-action (candidate)
@@ -65,13 +70,76 @@ Set it to nil if you don't want this limit."
   ;; for GC
   (helm-attrset 'company-candidates nil))
 
+(defun helm-company-show-doc-buffer (candidate)
+  "Temporarily show the documentation buffer for the CANDIDATE."
+  (interactive)
+  (let ((buffer (funcall helm-company-backend 'doc-buffer candidate)))
+    (when buffer
+      (if (and helm-company-help-window
+               (window-live-p helm-company-help-window))
+          (with-selected-window helm-company-help-window
+            (helm-company-display-document-buffer buffer))
+        (setq helm-company-help-window
+              (helm-company-display-document-buffer buffer))))))
+
+(defun helm-company-show-location (candidate)
+  "Temporarily display a buffer showing the CANDIDATE."
+  (interactive)
+    (let* ((location (save-excursion (funcall helm-company-backend 'location candidate)))
+           (pos (or (cdr location) (error "No location available")))
+           (buffer (or (and (bufferp (car location)) (car location))
+                       (find-file-noselect (car location) t))))
+      (with-selected-window (display-buffer buffer t)
+        (save-restriction
+          (widen)
+          (if (bufferp (car location))
+              (goto-char pos)
+            (goto-char (point-min))
+            (forward-line (1- pos))))
+        (set-window-start nil (point)))))
+
+(defun helm-company-display-document-buffer (buffer)
+  "Temporarily show the documentation BUFFER."
+  (with-current-buffer buffer
+    (goto-char (point-min)))
+  (display-buffer buffer
+                  '((display-buffer-same-window . t)
+                    (display-buffer-reuse-window . t))))
+
+(defmacro helm-company-run-action (&rest body)
+  `(with-helm-window
+    (save-selected-window
+      (with-helm-display-same-window
+        ,@body))))
+
+(defun helm-company-run-show-doc-buffer ()
+  "Run showing douctment action from `helm-company'."
+  (interactive)
+  (helm-company-run-action
+   (helm-company-show-doc-buffer (helm-get-selection))))
+
+(defun helm-company-run-show-location ()
+  "Run showing location action from `helm-company'."
+  (interactive)
+  (helm-company-run-action
+   (helm-company-show-location (helm-get-selection))))
+
+(defvar helm-company-map
+  (let ((keymap (make-sparse-keymap)))
+    (set-keymap-parent keymap helm-map)
+    (define-key keymap (kbd "M-s") 'helm-company-run-show-location)
+    (define-key keymap (kbd "C-s") 'helm-company-run-show-doc-buffer)
+    (delq nil keymap))
+  "Keymap used in Company sources.")
+
 (defvar helm-source-company-candidates
-  '((name . "Company")
+  `((name . "Company")
     (init . helm-company-init)
     (candidates . (lambda () (helm-attr 'company-candidates)))
     (action . helm-company-action)
-    (persistent-action . t) ;; Disable persistent-action
-    (persistent-help . "DoNothing")
+    (persistent-action . helm-company-show-location)
+    (persistent-help . "Show document (If available)")
+    (keymap . ,helm-company-map)
     (company-candidates)))
 
 ;;;###autoload
@@ -92,6 +160,7 @@ It is useful to narrow candidates."
 
 ;; Local Variables:
 ;; coding: utf-8
+;; eval: (setq byte-compile-not-obsolete-vars '(display-buffer-function))
 ;; eval: (checkdoc-minor-mode 1)
 ;; End:
 
