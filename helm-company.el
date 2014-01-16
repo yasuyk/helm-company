@@ -129,7 +129,7 @@ Set it to nil if you don't want this limit."
   "Run showing location action from `helm-company'."
   (interactive)
   (helm-company-run-action
-   (helm-company-show-location (helm-get-selection))))
+   (helm-company-find-location (helm-get-selection))))
 
 (defvar helm-company-map
   (let ((keymap (make-sparse-keymap)))
