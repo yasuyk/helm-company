@@ -50,6 +50,11 @@ Set it to nil if you don't want this limit."
   :group 'helm-company
   :type '(choice (const :tag "Disabled" nil) integer))
 
+(defcustom helm-company-delete-help-window-p t
+  "If nil, delete window showed by `helm-company.' when moving line."
+  :group 'helm-company
+ :type 'boolean)
+
 (defvar helm-company-help-window nil)
 (defvar helm-company-backend nil)
 
@@ -69,7 +74,7 @@ Set it to nil if you don't want this limit."
   (insert candidate)
   ;; for GC
   (helm-attrset 'company-candidates nil))
-                
+
 (defun helm-company-action-show-document (candidate)
   "Show the documentation of the CANDIDATE."
   (interactive)
@@ -131,6 +136,44 @@ Set it to nil if you don't want this limit."
   (helm-company-run-action
    (helm-company-find-location (helm-get-selection))))
 
+(defun helm-company-delete-window ()
+  "Remove window used by helm-company."
+  (when (and helm-company-delete-help-window-p
+             (window-live-p helm-company-help-window))
+    (delete-window helm-company-help-window)))
+
+(defadvice helm-next-line
+  (before helm-company-delete-windows-when-next-line)
+  "Remove window used by helm-company on `helm-next-line'."
+  (helm-company-delete-window))
+
+(defadvice helm-previous-line
+  (before helm-company-delete-windows-when-previous-line)
+  "Remove window used by helm-company on `helm-previous-line'."
+  (helm-company-delete-window))
+
+(defun helm-company-activate-advices (arg)
+  "Enable helm-company advices if ARG is t."
+  (if arg
+      (progn (ad-enable-advice 'helm-next-line 'before
+                               'helm-company-delete-windows-when-next-line)
+             (ad-enable-advice 'helm-previous-line 'before
+                               'helm-company-delete-windows-when-previous-line))
+    (ad-disable-advice 'helm-next-line 'before
+                       'helm-company-delete-windows-when-next-line)
+    (ad-disable-advice 'helm-previous-line 'before
+                       'helm-company-delete-windows-when-previous-line))
+  (ad-activate 'helm-next-line)
+  (ad-activate 'helm-previous-line))
+
+(defmacro helm-company-with-advices (&rest body)
+  "Excute BODY with helm-company advices."
+  (declare (indent 2) (debug t))
+  `(progn
+     (helm-company-activate-advices t)
+     ,@body
+     (helm-company-activate-advices nil)))
+
 (defvar helm-company-map
   (let ((keymap (make-sparse-keymap)))
     (set-keymap-parent keymap helm-map)
@@ -164,10 +207,12 @@ It is useful to narrow candidates."
     (company-complete))
   (when company-point
     (let ((begin (- company-point (length company-prefix))))
-      (with-helm-show-completion begin company--point-max
-        (helm :sources 'helm-source-company
-              :buffer  "*helm company*"
-              :candidate-number-limit helm-company-candidate-number-limit)))))
+      (helm-company-with-advices
+          (with-helm-show-completion begin company--point-max
+            (helm :sources 'helm-source-company
+                  :buffer  "*helm company*"
+                  :candidate-number-limit
+                  helm-company-candidate-number-limit))))))
 
 (provide 'helm-company)
 
