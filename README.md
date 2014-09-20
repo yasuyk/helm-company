@@ -40,7 +40,7 @@ Add the following to your Emacs init file.
 ####  `helm-company`
 
 Select `company-complete` candidates by [`helm`][helm].
-It is useful to narrow campany candidates.
+It is useful to narrow company candidates.
 
 [Helm]:http://emacs-helm.github.io/helm/
 [company-mode]:http://company-mode.github.io/
