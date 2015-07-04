@@ -10,8 +10,6 @@ helm-company.el [![Build Status](https://travis-ci.org/yasuyk/helm-company.png)]
 
 ## Installation
 
-## Installation
-
 ### Manual
 
 Just drop `helm-company.el`. somewhere in your `load-path`.
