@@ -120,7 +120,7 @@ Set it to nil if you don't want this limit."
         ,@body))))
 
 (defun helm-company-run-show-doc-buffer ()
-  "Run showing douctment action from `helm-company'."
+  "Run showing documentation action from `helm-company'."
   (interactive)
   (helm-company-run-action
    (helm-company-show-doc-buffer (helm-get-selection))))
@@ -141,7 +141,7 @@ Set it to nil if you don't want this limit."
 
 (defvar helm-company-actions
   '(("Insert" . helm-company-action-insert)
-    ("Show douctment (If available)" . helm-company-action-show-document)
+    ("Show documentation (If available)" . helm-company-action-show-document)
     ("Find location (If available)" . helm-company-find-location))
   "Actions for `helm-company'.")
 
@@ -151,7 +151,7 @@ Set it to nil if you don't want this limit."
     (candidates . (lambda () (helm-attr 'company-candidates)))
     (action . ,helm-company-actions)
     (persistent-action . helm-company-show-doc-buffer)
-    (persistent-help . "Show document (If available)")
+    (persistent-help . "Show documentation (If available)")
     (keymap . ,helm-company-map)
     (company-candidates)))
 
