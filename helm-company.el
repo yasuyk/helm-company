@@ -5,7 +5,7 @@
 ;; Author: Yasuyuki Oka <yasuyk@gmail.com>
 ;; Version: 0.1.1
 ;; URL: https://github.com/yasuyk/helm-company
-;; Package-Requires: ((helm "1.5.9") (company "0.6.13"))
+;; Package-Requires: ((helm-core "1.9.3") (company "0.9.0"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -33,7 +33,6 @@
 ;;; Code:
 
 (require 'helm)
-(require 'helm-match-plugin)
 (require 'helm-files)
 (require 'helm-elisp) ;; For with-helm-show-completion
 (require 'company)
