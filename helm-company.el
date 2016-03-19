@@ -3,9 +3,9 @@
 ;; Copyright (C) 2013 Yasuyuki Oka <yasuyk@gmail.com>
 
 ;; Author: Yasuyuki Oka <yasuyk@gmail.com>
-;; Version: 0.1.1
+;; Version: 0.1.2
 ;; URL: https://github.com/yasuyk/helm-company
-;; Package-Requires: ((helm "1.5.9") (company "0.6.13"))
+;; Package-Requires: ((helm-core "1.9.3") (company "0.9.0"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -33,7 +33,6 @@
 ;;; Code:
 
 (require 'helm)
-(require 'helm-match-plugin)
 (require 'helm-files)
 (require 'helm-elisp) ;; For with-helm-show-completion
 (require 'company)
@@ -56,7 +55,7 @@ Set it to nil if you don't want this limit."
 (defun helm-company-init ()
   "Prepare helm for company."
   (helm-attrset 'company-candidates company-candidates)
-  (helm-attrset 'company-prefix company-prefix)
+  (helm-attrset 'company-common company-common)
   (setq helm-company-help-window nil)
   (if (<= (length company-candidates) 1)
       (helm-exit-minibuffer)
@@ -65,7 +64,7 @@ Set it to nil if you don't want this limit."
 
 (defun helm-company-action-insert (candidate)
   "Insert CANDIDATE."
-  (delete-char (- (length (helm-attr 'company-prefix))))
+  (delete-char (- (length (helm-attr 'company-common))))
   (insert candidate)
   ;; for GC
   (helm-attrset 'company-candidates nil))
@@ -120,7 +119,7 @@ Set it to nil if you don't want this limit."
         ,@body))))
 
 (defun helm-company-run-show-doc-buffer ()
-  "Run showing douctment action from `helm-company'."
+  "Run showing documentation action from `helm-company'."
   (interactive)
   (helm-company-run-action
    (helm-company-show-doc-buffer (helm-get-selection))))
@@ -141,19 +140,25 @@ Set it to nil if you don't want this limit."
 
 (defvar helm-company-actions
   '(("Insert" . helm-company-action-insert)
-    ("Show douctment (If available)" . helm-company-action-show-document)
+    ("Show documentation (If available)" . helm-company-action-show-document)
     ("Find location (If available)" . helm-company-find-location))
   "Actions for `helm-company'.")
 
+(defcustom helm-company-fuzzy-match t
+  "Enable fuzzy matching for Helm Company."
+  :type 'boolean)
+
 (defvar helm-source-company
-  `((name . "Company")
-    (init . helm-company-init)
-    (candidates . (lambda () (helm-attr 'company-candidates)))
-    (action . ,helm-company-actions)
-    (persistent-action . helm-company-show-doc-buffer)
-    (persistent-help . "Show document (If available)")
-    (keymap . ,helm-company-map)
-    (company-candidates)))
+  (helm-build-in-buffer-source "Company"
+    :data (lambda ()
+            (helm-company-init)
+            (helm-attr 'company-candidates))
+    :fuzzy-match helm-company-fuzzy-match
+    :keymap helm-company-map
+    :persistent-action 'helm-company-show-doc-buffer
+    :persistent-help "Show document (If available)"
+    :action helm-company-actions)
+  "Helm source definition for recent files in current project.")
 
 ;;;###autoload
 (defun helm-company ()
