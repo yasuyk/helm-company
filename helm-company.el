@@ -144,15 +144,21 @@ Set it to nil if you don't want this limit."
     ("Find location (If available)" . helm-company-find-location))
   "Actions for `helm-company'.")
 
+(defcustom helm-company-fuzzy-match t
+  "Enable fuzzy matching for Helm Company."
+  :type 'boolean)
+
 (defvar helm-source-company
-  `((name . "Company")
-    (init . helm-company-init)
-    (candidates . (lambda () (helm-attr 'company-candidates)))
-    (action . ,helm-company-actions)
-    (persistent-action . helm-company-show-doc-buffer)
-    (persistent-help . "Show document (If available)")
-    (keymap . ,helm-company-map)
-    (company-candidates)))
+  (helm-build-in-buffer-source "Company"
+    :data (lambda ()
+            (helm-company-init)
+            (helm-attr 'company-candidates))
+    :fuzzy-match helm-company-fuzzy-match
+    :keymap helm-company-map
+    :persistent-action 'helm-company-show-doc-buffer
+    :persistent-help "Show document (If available)"
+    :action helm-company-actions)
+  "Helm source definition for recent files in current project.")
 
 ;;;###autoload
 (defun helm-company ()
