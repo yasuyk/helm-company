@@ -33,7 +33,6 @@
 ;;; Code:
 
 (require 'helm)
-(require 'helm-match-plugin)
 (require 'helm-files)
 (require 'helm-elisp) ;; For with-helm-show-completion
 (require 'company)
